@@ -1,0 +1,33 @@
+/* verify url below as it may change then remove this line NOTE This only works with Java apps as it pulls the java jar file*/
+FROM hub.docker.com/openjdk:8-jdk-alpine
+EXPOSE 8080
+
+RUN apk --no-cache --virtual build-dependencies add \
+  curl\
+  && rm -rf /var/cache/apk/*
+  
+RUN mkdir -p /opt/Downloads
+RUN adduser -S -G root javarun
+
+RUN curl\
+  -X GET https://ENTERYOURCONTRASTSECURITYURLHERE \
+  -H 'Authorization: ENTERYOURAUTHKEYHERE' \
+  -H 'API-Key: ENTERYOURAPIKEYHERE \
+  -H 'Accept: application/json' \
+  -OJ
+RUN mv contrast.jar /opt/Downloads/
+
+RUN ls .
+RUN ls /opt/Downloads
+ENV CONTRAST_SERVER_NAME enteryourservernameherecanbe.localtest
+COPY ./contrast_security.yaml /etc/contrast/java/contrast_security.yaml
+
+COPY ./target/YOURAPISNAPSHOT.jar /opt/api/app.jar
+
+RUN chown -R javarun.root /opt/YOURAPI
+RUN chmod -777 /opt/YOURAPI
+
+user javarun
+
+ENTRYPOINT ["java","-javaagent:/opt/Downloads/contrast.jar", "-Dcontrast.dir=/opt/YOURAPI", "Dcontrast.security.log.level=info",\
+      "-jar","/opt/api/app.jar","Dspring.profiles.active=comp"]
