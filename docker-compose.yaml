@@ -1,0 +1,22 @@
+version: '1'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile-alternate
+    ports:
+      - "8085:8080"
+    environment:
+      - HOST_DB_NAME=db
+      - HOST_DB=devdb
+      - HOST_DB_USER=userName
+      - HOST_DB_PWD=whatsMyName # guard this and change to another authentication method
+    depends_on:
+      - db
+  db:
+    image: mysql:5 # make sure version matches. Best to use most recent version
+    environment:
+      - MYSQL_DATABASE= devdb
+      - MYSQL_USER=userNAME
+      - MYSQL_PASSWORD=whatsMyName # again, guard this and consider another authentication method. only useful for protected systems
+      - MYSQL_RANDOM_ROOT_PASSWORD="yes"
